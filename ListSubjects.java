@@ -1,7 +1,12 @@
 package com.example.dellpctc.teacherassistant;
 
 import android.app.ListActivity;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -30,6 +35,7 @@ public class ListSubjects extends ListActivity {
 
 
   public void onListItemClick(ListView listview,View itemview,int position,long id){
+      new addCol().execute();
       int year  = (int) getIntent().getExtras().get(Year);
      int subject = (int)id;
        choice = (int) getIntent().getExtras().get(Choice);
@@ -65,5 +71,26 @@ public class ListSubjects extends ListActivity {
 
 
        return subject;
+    }
+
+    private class addCol extends AsyncTask<Void,Void,Boolean> {
+        String dateName;
+
+
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            SQLiteOpenHelper sql = new dataBaseHandler(ListSubjects.this);
+            SQLiteDatabase db = sql.getReadableDatabase();
+            Cursor cursor = db.query("DatePicker",new String[]{"_id","DAY","MONTH"},null,null,null,null,null );
+            String day = cursor.getString(1);
+            String month = cursor.getString(2);
+            dateName= String.valueOf(new StringBuilder().append(day).append("/").append(month));
+            SQLiteDatabase db2 = sql.getReadableDatabase();
+            ContentValues cv= new ContentValues();
+            cv.put("NAME",dateName);
+            db2.insert("DATENAME",null,cv);
+            return null;
+        }
     }
 }
