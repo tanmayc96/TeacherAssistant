@@ -36,7 +36,16 @@ public class dataBaseHandler extends SQLiteOpenHelper {
    private static final String TB_NAME4="DS";
     private static final String T4STUDENT_ID = "_id";
     private static final String T4NAME="NAME";
-
+    //Table 6 dateName
+    private static  final String TB_NAME6 = "DATENAME";
+    private static final String id ="_id";
+    private static final String NAME="NAME";
+    //date table
+    private static final String TB_NAME5="DateKeeper";
+    private static final String ID="_id";
+    private static final String DAY="DAY";
+    private static final String MONTH ="MONTH";
+    private static final String FLAG ="FLAG";
     public dataBaseHandler(Context context) {
         super(context, DB_NAME, null,DB_VERSION);
     }
@@ -45,6 +54,8 @@ public class dataBaseHandler extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         String createT1 = " CREATE TABLE " + TB_NAME1 + " ( "+T1STUDENT_ID + " INTEGER PRIMARY KEY, " +
                 T1NAME + " TEXT);" ;
+        String createT6 =" CREATE TABLE " + TB_NAME6 + " ( "+id+" INTEGER PRIMARY KEY, "+ NAME +
+                " TEXT );";
 
         String createT2 = " CREATE TABLE "+TB_NAME2 + " ( "+T2STUDENT_ID +" INTEGER PRIMARY KEY, "+
                 T2NAME + " TEXT );";
@@ -52,11 +63,14 @@ public class dataBaseHandler extends SQLiteOpenHelper {
                 T3NAME + " TEXT );";
         String createT4 = " CREATE TABLE "+TB_NAME4 + " ( "+T4STUDENT_ID +" INTEGER PRIMARY KEY, "+
                 T4NAME + " TEXT );";
-
+        String createT5 = " CREATE TABLE "+TB_NAME5 + " ( "+ID + " INTEGER PRIMARY KEY, "+ DAY +
+                " INTEGER, "+MONTH+" INTEGER,"+FLAG+" BOOLEAN DEFAULT FALSE);";
         db.execSQL(createT1);
         db.execSQL(createT2);
         db.execSQL(createT3);
         db.execSQL(createT4);
+        db.execSQL(createT5);
+        db.execSQL(createT6);
     }
 
 
