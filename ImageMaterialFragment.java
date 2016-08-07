@@ -3,14 +3,22 @@ package com.example.dellpctc.teacherassistant;
 
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+
+import java.util.Calendar;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -85,8 +93,10 @@ public class ImageMaterialFragment extends Fragment {
         builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                new setDate().execute();
               Intent  intent = new Intent(getActivity(),GetClass.class);
                 getActivity().startActivity(intent);
+
             }
         });
 
@@ -96,4 +106,32 @@ public class ImageMaterialFragment extends Fragment {
 
     }
 
+    private class setDate extends AsyncTask<Void, Void, Void> {
+           int day, month;
+           ContentValues cv;
+        @Override
+        protected void onPreExecute() {
+            Calendar calendar = Calendar.getInstance();
+            day = calendar.get(Calendar.DAY_OF_MONTH);
+            month = calendar.get(Calendar.MONTH);
+            cv= new ContentValues();
+            cv.put("DAY",day);
+            cv.put("MONTH",month);
+            cv.put("FLAG",false);
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            SQLiteOpenHelper sql = new dataBaseHandler(getActivity());
+
+            try{
+                SQLiteDatabase db = sql.getWritableDatabase();
+                db.insert("DateKeeper",null,cv);
+                db.close();
+            }catch (SQLiteException e){
+                Toast.makeText(getActivity(),"ERRROR",Toast.LENGTH_SHORT).show();
+            }
+            return null;
+        }
+    }
 }
