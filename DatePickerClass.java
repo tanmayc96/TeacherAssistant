@@ -2,6 +2,9 @@ package com.example.dellpctc.teacherassistant;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -17,8 +20,14 @@ public class DatePickerClass extends AppCompatActivity {
     private Calendar calendar;
     TextView dateView;
     int Year,month,day;
+    SQLiteOpenHelper sql;
+    SQLiteDatabase db;
+    ContentValues cv;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        sql = new dataBaseHandler(this);
+        db= sql.getWritableDatabase();
+        cv= new ContentValues();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_date_picker_class);
          dateView = (TextView)findViewById(R.id.date);
@@ -48,6 +57,10 @@ public class DatePickerClass extends AppCompatActivity {
 
     private void showDate(int day, int month, int Year) {
        dateView.setText(new StringBuilder().append(day).append("/").append(month).append("/").append(Year));
+    cv.put("DAY",day);
+        cv.put("MONTH",month);
+        cv.put("FLAG",true);
+        db.insert("DateKeeper",null,cv);
     }
 
 
