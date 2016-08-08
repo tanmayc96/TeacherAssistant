@@ -1,6 +1,9 @@
 package com.example.dellpctc.teacherassistant;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -16,6 +19,8 @@ import java.util.ArrayList;
 public class Attendance extends AppCompatActivity {
     public static String Choice ="Choice";
     ListAdapter namesAdapter;
+    SQLiteOpenHelper sql;
+    SQLiteDatabase db;
     int choice ;
     public static String year = "year";
     public static String subject = "subject";
@@ -31,8 +36,9 @@ public class Attendance extends AppCompatActivity {
         setContentView(R.layout.activity_attendance);
         ListView attendanceList = (ListView) findViewById(R.id.attendanceList);
         dataBaseHandler dbh = new dataBaseHandler(this);
+        int s =(int) getIntent().getExtras().get(subject);
         int y = (int) getIntent().getExtras().get(year);
-        ArrayList<StudentM> list =  dbh.getAllRecords(y);
+        ArrayList<StudentM> list =  dbh.getAllRecords(y,s);
           namesAdapter = new ListAdapter(this, list);
         attendanceList.setAdapter(namesAdapter);
 
@@ -46,14 +52,17 @@ public class Attendance extends AppCompatActivity {
         dataBaseHandler dbh =  new dataBaseHandler(this);
         int y = (int) getIntent().getExtras().get(year);
         int s = (int) getIntent().getExtras().get(subject);
+
+
+        String date = tellMeDate();
          choice =(int)getIntent().getExtras().get(Choice);
         Spinner spinner = (Spinner)findViewById(R.id.inc);
         String inc = spinner.getSelectedItem().toString();
         int count=0;
-        dbh.increment2(y,s,inc,choice);
+
         for (StudentM studentM :namesAdapter.getPresent()){
             if(studentM.present){
-               dbh.increment(y,s,studentM.getName(),inc,choice);
+               dbh.increment(y,s,studentM.getName(),inc,choice,date);
                ++count;
             }
         }
@@ -67,7 +76,16 @@ public class Attendance extends AppCompatActivity {
         super.onStart();
     }
 
+public String tellMeDate(){
+    sql = new dataBaseHandler(Attendance.this);
+    db= sql.getReadableDatabase();
+    Cursor cursor = db.rawQuery("SELECT * FROM DATENAME",null);
+    String date = cursor.getString(1);
+    db.close();
+    return date;
 
+
+}
 
 
 
