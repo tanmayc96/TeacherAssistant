@@ -7,6 +7,7 @@ import android.database.MatrixCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -234,6 +235,7 @@ db.close();
 
     public void increment(int tbName, int s, String name, String in, int choice,String date) {
         int inc=0;
+        new addCol().execute(date,tbName);
         switch (in){
             case "1":inc=1;
                     break;
@@ -313,6 +315,28 @@ cursor.close();
 
     }
 
+
+   private class addCol extends AsyncTask<Void,Void,Void>{
+    String t;
+    int v;
+
+
+       public addCol(int v, String t){
+           this.t = t;
+           this.v = v;
+       }
+
+       @Override
+       protected Void doInBackground(Void... params)
+       {
+           SQLiteDatabase db = dataBaseHandler.this.getReadableDatabase();
+           String date = dates[0];
+           String col = "ALTER TABLE"+"
+
+       }
+
+
+   }
 
 
 
