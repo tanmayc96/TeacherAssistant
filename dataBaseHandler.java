@@ -233,9 +233,10 @@ db.close();
 
  }
 
-    public void increment(int tbName, int s, String name, String in, int choice,String date) {
+    public void increment(int tbName, int subject, String name, String in, int choice,String date) {
         int inc=0;
-        new addCol().execute(date,tbName);
+        String year = null;
+        new addCol(date,tbName,subject).execute();
         switch (in){
             case "1":inc=1;
                     break;
@@ -244,14 +245,25 @@ db.close();
             case "3":inc =3;
                      break;
         }
+        switch (tbName){
+            case 0: year ="Ist";
+                     break;
+            case 1: year ="IInd";
+                break;
+            case 2: year ="IIIrd";
+                break;
+        }
        SQLiteDatabase db = this.getWritableDatabase();
        //date column to be passed;
         Cursor cursor = null;
+        Cursor c = allEntry(year);
+        int count = c.getColumnCount();
+        String col = c.getColumnName(count);
         ContentValues cv;
         try { if(tbName == 0)
-        {switch (s) {
+        {switch (subject) {
                 case 0:
-                    cursor = db.query(TB_NAME1, new String[]{T1STUDENT_ID, date}, " NAME = ?", new String[]{name}, null, null, null);
+                    cursor = db.query(TB_NAME1, new String[]{T1STUDENT_ID, col}, " NAME = ?", new String[]{name}, null, null, null);
                     int count1 =0;
                     if(cursor.moveToFirst()) {
                       count1 = cursor.getInt(1);
@@ -259,23 +271,23 @@ db.close();
                     }
 
                     cv = new ContentValues();
-                    cv.put(subject, count1);
+                    cv.put(col, count1);
                     db.update(TB_NAME1, cv, " NAME = ?", new String[]{name});
 
                     break;
                 case 1:
-                    cursor = db.query(TB_NAME2, new String[]{T2STUDENT_ID, subject}, " NAME = ?", new String[]{name}, null, null, null);
+                    cursor = db.query(TB_NAME2, new String[]{T2STUDENT_ID, col}, " NAME = ?", new String[]{name}, null, null, null);
                     int count2 =0;
                     if(cursor.moveToFirst()){
                         count2 = cursor.getInt(1);
                         count2=count2+inc;
                     }
                     cv = new ContentValues();
-                    cv.put(subject, count2);
+                    cv.put(col, count2);
                     db.update(TB_NAME2, cv, " NAME = ?", new String[]{name});
                     break;
             case 2:
-                cursor = db.query(TB_NAME3, new String[]{T3STUDENT_ID, subject}, " NAME = ?", new String[]{name}, null, null, null);
+                cursor = db.query(TB_NAME3, new String[]{T3STUDENT_ID, col}, " NAME = ?", new String[]{name}, null, null, null);
                  count1 =0;
                 if(cursor.moveToFirst()) {
                     count1 = cursor.getInt(1);
@@ -283,12 +295,12 @@ db.close();
                 }
 
                 cv = new ContentValues();
-                cv.put(subject, count1);
+                cv.put(col, count1);
                 db.update(TB_NAME3, cv, " NAME = ?", new String[]{name});
 
                 break;
             case 3:
-                cursor = db.query(TB_NAME4, new String[]{T4STUDENT_ID, subject}, " NAME = ?", new String[]{name}, null, null, null);
+                cursor = db.query(TB_NAME4, new String[]{T4STUDENT_ID, col}, " NAME = ?", new String[]{name}, null, null, null);
                 count1 =0;
                 if(cursor.moveToFirst()) {
                     count1 = cursor.getInt(1);
@@ -296,7 +308,7 @@ db.close();
                 }
 
                 cv = new ContentValues();
-                cv.put(subject, count1);
+                cv.put(col, count1);
                 db.update(TB_NAME4, cv, " NAME = ?", new String[]{name});
 
                 break;
@@ -317,22 +329,35 @@ cursor.close();
 
 
    private class addCol extends AsyncTask<Void,Void,Void>{
-    String t;
-    int v;
+    String date;
+    int tbName;
+    int subject;
 
 
-       public addCol(int v, String t){
-           this.t = t;
-           this.v = v;
+       public addCol( String date, int tbName, int subject){
+           this.date = date;
+           this.subject = subject;
+           this.tbName=tbName;
        }
 
        @Override
        protected Void doInBackground(Void... params)
        {
            SQLiteDatabase db = dataBaseHandler.this.getReadableDatabase();
-           String date = dates[0];
-           String col = "ALTER TABLE"+"
+          if(tbName==0){
+              switch (subject){
+                  case 0: db.execSQL("ALTER TABLE "+TB_NAME1+" ADD COUMN "+date+" INTEGER DEFAULT 0 ;");
+                      break;
+                  case 1: db.execSQL("ALTER TABLE "+TB_NAME2+" ADD COUMN "+date+" INTEGER DEFAULT 0 ;");
+                      break;
+                  case 3: db.execSQL("ALTER TABLE "+TB_NAME3+" ADD COUMN "+date+" INTEGER DEFAULT 0 ;");
+                      break;
+                  case 4:db.execSQL("ALTER TABLE "+TB_NAME4+" ADD COUMN "+date+" INTEGER DEFAULT 0 ;");
 
+              }
+          }
+
+           return null;
        }
 
 
