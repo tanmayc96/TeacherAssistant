@@ -7,7 +7,6 @@ import android.database.MatrixCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.AsyncTask;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -65,7 +64,7 @@ public class dataBaseHandler extends SQLiteOpenHelper {
         String createT4 = " CREATE TABLE "+TB_NAME4 + " ( "+T4STUDENT_ID +" INTEGER PRIMARY KEY, "+
                 T4NAME + " TEXT );";
         String createT5 = " CREATE TABLE "+TB_NAME5 + " ( "+ID + " INTEGER PRIMARY KEY, "+ DAY +
-                " INTEGER, "+MONTH+" INTEGER,"+FLAG+" BOOLEAN DEFAULT FALSE);";
+                " INTEGER DEFAULT 0, "+MONTH+" INTEGER DEFAULT 0,"+FLAG+" BOOLEAN DEFAULT FALSE);";
         db.execSQL(createT1);
         db.execSQL(createT2);
         db.execSQL(createT3);
@@ -207,7 +206,7 @@ db.close();
                    break;
            }
        }
-       cursor.close();
+
        db.close();
        return names;
    }
@@ -236,7 +235,7 @@ db.close();
     public void increment(int tbName, int subject, String name, String in, int choice,String date) {
         int inc=0;
         String year = null;
-        new addCol(date,tbName,subject).execute();
+         addCol("abc",tbName,subject);
         switch (in){
             case "1":inc=1;
                     break;
@@ -256,9 +255,9 @@ db.close();
        SQLiteDatabase db = this.getWritableDatabase();
        //date column to be passed;
         Cursor cursor = null;
-        Cursor c = allEntry(year);
+        Cursor c = allEntry("Ist");
         int count = c.getColumnCount();
-        String col = c.getColumnName(count);
+        String col = c.getColumnName(2);
         ContentValues cv;
         try { if(tbName == 0)
         {switch (subject) {
@@ -327,8 +326,27 @@ cursor.close();
 
     }
 
+    private void addCol(String date, int tbName, int subject) {
+        SQLiteDatabase db = dataBaseHandler.this.getReadableDatabase();
+        if (tbName == 0) {
+            switch (subject) {
+                case 0:
+                    db.execSQL("ALTER TABLE " + TB_NAME1 + " ADD COLUMN " + date + " INTEGER DEFAULT 0 ;");
+                    break;
+                case 1:
+                    db.execSQL("ALTER TABLE " + TB_NAME2 + " ADD COLUMN " + date + " INTEGER DEFAULT 0 ;");
+                    break;
+                case 3:
+                    db.execSQL("ALTER TABLE " + TB_NAME3 + " ADD COLUMN " + date + " INTEGER DEFAULT 0 ;");
+                    break;
+                case 4:
+                    db.execSQL("ALTER TABLE " + TB_NAME4 + " ADD COLUMN " + date + " INTEGER DEFAULT 0 ;");
 
-   private class addCol extends AsyncTask<Void,Void,Void>{
+            }
+        }
+    }
+
+   /* private class addCol extends AsyncTask<Void,Void,Void>{
     String date;
     int tbName;
     int subject;
@@ -361,7 +379,8 @@ cursor.close();
        }
 
 
-   }
+   }*/
+
 
 
 
