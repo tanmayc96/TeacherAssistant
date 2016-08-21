@@ -93,9 +93,8 @@ public class ImageMaterialFragment extends Fragment {
         builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                new setDate().execute();
-              Intent  intent = new Intent(getActivity(),GetClass.class);
-                getActivity().startActivity(intent);
+                 new setDate().execute();
+
 
             }
         });
@@ -106,9 +105,10 @@ public class ImageMaterialFragment extends Fragment {
 
     }
 
-    private class setDate extends AsyncTask<Void, Void, Void> {
+     private class setDate extends AsyncTask<Void, Void, Boolean> {
            int day, month;
            ContentValues cv;
+        int count=0;
         @Override
         protected void onPreExecute() {
             Calendar calendar = Calendar.getInstance();
@@ -121,17 +121,85 @@ public class ImageMaterialFragment extends Fragment {
         }
 
         @Override
-        protected Void doInBackground(Void... params) {
+        protected Boolean doInBackground(Void... params) {
+           Calendar calendar = Calendar.getInstance();
+
             SQLiteOpenHelper sql = new dataBaseHandler(getActivity());
 
             try{
+                   int dayO = calendar.get(Calendar.DAY_OF_MONTH);
                 SQLiteDatabase db = sql.getWritableDatabase();
-                db.insert("DateKeeper",null,cv);
+                db.insert("DateKeeper", null, cv);
+                /*  SQLiteDatabase db2 = sql.getReadableDatabase();
+                Cursor mCursor = db2.rawQuery("SELECT COUNT(*) FROM DateKeeper",null);
+                if(mCursor.moveToFirst()) {
+                     count = mCursor.getInt(0);
+                }
+                  if(count<0){
+                      db.insert("DateKeeper", null, cv);
+                  }
+                else
+                  {Cursor cursor = db2.query("DateKeeper",new String[]{"_id","DAY"}," _id = 1",null,null,null,null );
+                if(cursor.moveToFirst()) {
+                    int day = cursor.getInt(1);
+                    if ( day != dayO)
+                        db.insert("DateKeeper", null, cv);
+                }}
+*/
+
                 db.close();
             }catch (SQLiteException e){
                 Toast.makeText(getActivity(),"ERRROR",Toast.LENGTH_SHORT).show();
             }
-            return null;
+            return true;
         }
-    }
+
+         @Override
+         protected void onPostExecute(Boolean aBoolean) {
+             if(aBoolean){
+                 Intent  intent = new Intent(getActivity(),GetClass.class);
+                 getActivity().startActivity(intent);
+             }
+         }
+     }
+
+ /*   public void setDate(){
+        int day, month;
+        ContentValues cv;
+        int count = 0;
+        Calendar calendar = Calendar.getInstance();
+        day = calendar.get(Calendar.DAY_OF_MONTH);
+        month = calendar.get(Calendar.MONTH);
+        cv= new ContentValues();
+        cv.put("DAY",14);
+        cv.put("MONTH",8);
+        cv.put("FLAG",false);
+
+        SQLiteOpenHelper sql = new dataBaseHandler(getActivity());
+
+        try{
+            int dayO = calendar.get(Calendar.DAY_OF_MONTH);
+            SQLiteDatabase db2 = sql.getReadableDatabase();
+            SQLiteDatabase db = sql.getWritableDatabase();
+            Cursor mCursor = db.rawQuery("SELECT COUNT(*) FROM DateKeeper",null);
+            if(mCursor.moveToFirst()) {
+                count = mCursor.getInt(0);
+            }
+            if(count<0){
+                db.insert("DateKeeper", null, cv);
+            }
+            else
+            {Cursor cursor = db2.query("DateKeeper",new String[]{"_id","DAY"}," _id = ?",new String[]{Integer.toString(1)},null,null,null );
+                if(cursor.moveToFirst()) {
+                    int day2 = cursor.getInt(1);
+                    if ( day2 != dayO)
+                        db.insert("DateKeeper", null, cv);
+                }}
+            db.close();
+        }catch (SQLiteException e){
+            Toast.makeText(getActivity(),"ERRROR",Toast.LENGTH_SHORT).show();
+        }
+        Intent  intent = new Intent(getActivity(),GetClass.class);
+        getActivity().startActivity(intent);
+    } */
 }
