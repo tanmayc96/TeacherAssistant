@@ -79,8 +79,10 @@ public class Attendance extends AppCompatActivity {
 public String tellMeDate(){
     sql = new dataBaseHandler(Attendance.this);
     db= sql.getReadableDatabase();
-    Cursor cursor = db.rawQuery("SELECT * FROM DATENAME",null);
-    String date = cursor.getString(1);
+    String date = null;
+    Cursor cursor = db.query("DATENAME",new String[]{"_id","NAME"}," _id = ?",new String[]{Integer.toString(1)},null,null,null);
+    if(cursor.moveToFirst()){
+     date = cursor.getString(1);}
     db.close();
     return date;
 
