@@ -3,7 +3,6 @@ package com.example.dellpctc.teacherassistant;
 import android.app.ListActivity;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.AsyncTask;
@@ -80,13 +79,14 @@ public class ListSubjects extends ListActivity {
 
         @Override
         protected Boolean doInBackground(Void... params) {
+
             SQLiteOpenHelper sql = new dataBaseHandler(ListSubjects.this);
             SQLiteDatabase db = sql.getReadableDatabase();
-            Cursor cursor = db.query("DatePicker",new String[]{"_id","DAY","MONTH"},null,null,null,null,null );
-            String day = cursor.getString(1);
-            String month = cursor.getString(2);
-            dateName= String.valueOf(new StringBuilder().append(day).append("/").append(month));
-            SQLiteDatabase db2 = sql.getReadableDatabase();
+            /*Cursor cursor = db.query("DateKeeper",new String[]{"_id","DAY","MONTH"}," _id = ? ",new String[]{Integer.toString(1)},null,null,null);
+            int day = cursor.getInt(1);
+            int month = cursor.getInt(2);*/
+            dateName= String.valueOf(new StringBuilder().append(14).append("/").append(8));
+            SQLiteDatabase db2 = sql.getWritableDatabase();
             ContentValues cv= new ContentValues();
             cv.put("NAME",dateName);
             db2.insert("DATENAME",null,cv);
