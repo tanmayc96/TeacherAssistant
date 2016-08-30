@@ -6,6 +6,7 @@ import android.app.Fragment;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -93,7 +94,7 @@ public class ImageMaterialFragment extends Fragment {
         builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                 new setDate().execute();
+                  new setDate().execute();
 
 
             }
@@ -113,8 +114,9 @@ public class ImageMaterialFragment extends Fragment {
         protected void onPreExecute() {
             Calendar calendar = Calendar.getInstance();
             day = calendar.get(Calendar.DAY_OF_MONTH);
-            month = calendar.get(Calendar.MONTH);
-            cv= new ContentValues();
+            month = calendar.get(Calendar.MONTH)+1;
+
+           cv= new ContentValues();
             cv.put("DAY",day);
             cv.put("MONTH",month);
             cv.put("FLAG",false);
@@ -122,36 +124,44 @@ public class ImageMaterialFragment extends Fragment {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-           Calendar calendar = Calendar.getInstance();
 
+           Calendar calendar = Calendar.getInstance();
+              Boolean result= false;
             SQLiteOpenHelper sql = new dataBaseHandler(getActivity());
 
             try{
                    int dayO = calendar.get(Calendar.DAY_OF_MONTH);
                 SQLiteDatabase db = sql.getWritableDatabase();
-                db.insert("DateKeeper", null, cv);
-                /*  SQLiteDatabase db2 = sql.getReadableDatabase();
-                Cursor mCursor = db2.rawQuery("SELECT COUNT(*) FROM DateKeeper",null);
-                if(mCursor.moveToFirst()) {
-                     count = mCursor.getInt(0);
-                }
-                  if(count<0){
-                      db.insert("DateKeeper", null, cv);
-                  }
-                else
-                  {Cursor cursor = db2.query("DateKeeper",new String[]{"_id","DAY"}," _id = 1",null,null,null,null );
-                if(cursor.moveToFirst()) {
-                    int day = cursor.getInt(1);
-                    if ( day != dayO)
-                        db.insert("DateKeeper", null, cv);
-                }}
-*/
 
-                db.close();
+                 SQLiteDatabase db2 = sql.getReadableDatabase();
+                Cursor mCursor = db2.rawQuery("SELECT * FROM DateKeeper",null);
+                if(mCursor.moveToFirst()) {
+                    count = mCursor.getCount();
+                }
+                if(count==0 || count <0)
+                {
+                      db.insert("DateKeeper", null, cv);
+                      result=true;
+                }
+                else {
+                    Cursor cursor = db2.query("DateKeeper", new String[]{"_id", "DAY"}, " _id = 1", null, null, null, null);
+                    if (cursor.moveToFirst()) {
+                        int day = cursor.getInt(1);
+                        if (day != dayO){
+                            db.update("dateKeeper",cv," _id = ?",new String[]{Integer.toString(1)});
+                        }
+                        result = true;
+                    }
+                }
+
+               // db.insert("DateKeeper", null, cv);
+                 //  result=true;
+
             }catch (SQLiteException e){
                 Toast.makeText(getActivity(),"ERRROR",Toast.LENGTH_SHORT).show();
+               result=false;
             }
-            return true;
+            return result;
         }
 
          @Override
@@ -163,7 +173,7 @@ public class ImageMaterialFragment extends Fragment {
          }
      }
 
- /*   public void setDate(){
+   /* public void setDate(){
         int day, month;
         ContentValues cv;
         int count = 0;
@@ -171,8 +181,8 @@ public class ImageMaterialFragment extends Fragment {
         day = calendar.get(Calendar.DAY_OF_MONTH);
         month = calendar.get(Calendar.MONTH);
         cv= new ContentValues();
-        cv.put("DAY",14);
-        cv.put("MONTH",8);
+        cv.put("DAY",day);
+        cv.put("MONTH",month);
         cv.put("FLAG",false);
 
         SQLiteOpenHelper sql = new dataBaseHandler(getActivity());
@@ -183,23 +193,23 @@ public class ImageMaterialFragment extends Fragment {
             SQLiteDatabase db = sql.getWritableDatabase();
             Cursor mCursor = db.rawQuery("SELECT COUNT(*) FROM DateKeeper",null);
             if(mCursor.moveToFirst()) {
-                count = mCursor.getInt(0);
+                count = mCursor.getCount();
             }
             if(count<0){
                 db.insert("DateKeeper", null, cv);
             }
-            else
-            {Cursor cursor = db2.query("DateKeeper",new String[]{"_id","DAY"}," _id = ?",new String[]{Integer.toString(1)},null,null,null );
-                if(cursor.moveToFirst()) {
+            else {
+                Cursor cursor = db2.query("DateKeeper", new String[]{"_id", "DAY"}, " _id = ?", new String[]{Integer.toString(1)}, null, null, null);
+                if (cursor.moveToFirst()) {
                     int day2 = cursor.getInt(1);
-                    if ( day2 != dayO)
+                    if (day2 != dayO)
                         db.insert("DateKeeper", null, cv);
-                }}
-            db.close();
+                }
+            }
         }catch (SQLiteException e){
             Toast.makeText(getActivity(),"ERRROR",Toast.LENGTH_SHORT).show();
         }
         Intent  intent = new Intent(getActivity(),GetClass.class);
         getActivity().startActivity(intent);
-    } */
+    }*/
 }
