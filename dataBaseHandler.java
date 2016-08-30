@@ -22,9 +22,7 @@ public class dataBaseHandler extends SQLiteOpenHelper {
     private static final String TB_NAME1="C";
     private static final String T1STUDENT_ID = "_id";
     private static final String T1NAME="NAME";
-
-
-   //TABLE2 theory
+    //TABLE2 theory
     private static final String TB_NAME2="CSA";
     private static final String T2STUDENT_ID = "_id";
     private static final String T2NAME="NAME";
@@ -108,7 +106,7 @@ public class dataBaseHandler extends SQLiteOpenHelper {
         } catch (SQLiteException e){
            result=false;
         }
-        db.close();
+
      return result;
     }
 
@@ -132,7 +130,7 @@ public class dataBaseHandler extends SQLiteOpenHelper {
         }catch (SQLiteException e){
             result = false;
         }
-        db.close();
+
         return result;
     }
 public Cursor allEntry(String year){
@@ -148,19 +146,35 @@ public Cursor allEntry(String year){
     }
     if(cursor!=null)
          cursor.moveToFirst();
-db.close();
+
     return cursor;
 
 }
-   public ArrayList<StudentM> getAllRecords(int subject,int year){
+    public Cursor allEntry2(String year){          //NEEDS OPTIMIZATION
+        Cursor cursor = null;
+        SQLiteDatabase db = this.getReadableDatabase();
+        if(year.equals("DATENAME")){
+            String query = "SELECT * FROM "+TB_NAME6;
+            cursor = db.rawQuery(query,null);
+        }
+        else if(year.equals("IInd")){
+            String query = "SELECT * FROM " +TB_NAME2;
+            cursor = db.rawQuery(query,null);
+        }
+        if(cursor!=null)
+            cursor.moveToFirst();
+
+        return cursor;
+
+    }
+   public ArrayList<StudentM> getAllRecords(int year,int subject){
        ArrayList<StudentM> names = new ArrayList<>();
        SQLiteDatabase db = this.getWritableDatabase();
        String query;
        Cursor cursor = null;
        if(year ==0) {
            switch (subject) {
-               case 0:
-                   query = "SELECT * FROM " + TB_NAME1;
+               case 0: query = "SELECT * FROM " + TB_NAME1;
                    cursor = db.rawQuery(query, null);
                    if (cursor.moveToFirst()) {
                        do {
@@ -171,8 +185,7 @@ db.close();
                    }
                    break;
 
-               case 1:
-                   query = "SELECT * FROM " + TB_NAME2;
+               case 1:query = "SELECT * FROM " + TB_NAME2;
                    cursor = db.rawQuery(query, null);
                    if (cursor.moveToFirst()) {
                        do {
@@ -207,7 +220,7 @@ db.close();
            }
        }
 
-       db.close();
+
        return names;
    }
 
@@ -232,10 +245,10 @@ db.close();
 
  }
 
-    public void increment(int tbName, int subject, String name, String in, int choice,String date) {
+    public void increment(int tbName, int subject, String name, String in, int choice, String date) {
         int inc=0;
         String year = null;
-         addCol("abc",tbName,subject);
+         //TAKE IT OUT FROM HERE
         switch (in){
             case "1":inc=1;
                     break;
@@ -252,82 +265,81 @@ db.close();
             case 2: year ="IIIrd";
                 break;
         }
-       SQLiteDatabase db = this.getWritableDatabase();
+       SQLiteDatabase db1 = this.getReadableDatabase();
        //date column to be passed;
         Cursor cursor = null;
         Cursor c = allEntry("Ist");
         int count = c.getColumnCount();
         String col = c.getColumnName(2);
         ContentValues cv;
-        try { if(tbName == 0)
-        {switch (subject) {
-                case 0:
-                    cursor = db.query(TB_NAME1, new String[]{T1STUDENT_ID, col}, " NAME = ?", new String[]{name}, null, null, null);
-                    int count1 =0;
-                    if(cursor.moveToFirst()) {
-                      count1 = cursor.getInt(1);
-                        count1=count1+inc;
-                    }
+        try {
 
-                    cv = new ContentValues();
-                    cv.put(col, count1);
-                    db.update(TB_NAME1, cv, " NAME = ?", new String[]{name});
+            if (tbName == 0) {
+                switch (subject) {
+                    case 0:
+                        cursor = db1.query(TB_NAME1, new String[]{T1STUDENT_ID,date }, " NAME = ?", new String[]{name}, null, null, null);
+                        int count1 = 0;
+                        if (cursor.moveToFirst()) {
+                            count1 = cursor.getInt(1);
+                            count1 = count1 + inc;
+                        }
 
-                    break;
-                case 1:
-                    cursor = db.query(TB_NAME2, new String[]{T2STUDENT_ID, col}, " NAME = ?", new String[]{name}, null, null, null);
-                    int count2 =0;
-                    if(cursor.moveToFirst()){
-                        count2 = cursor.getInt(1);
-                        count2=count2+inc;
-                    }
-                    cv = new ContentValues();
-                    cv.put(col, count2);
-                    db.update(TB_NAME2, cv, " NAME = ?", new String[]{name});
-                    break;
-            case 2:
-                cursor = db.query(TB_NAME3, new String[]{T3STUDENT_ID, col}, " NAME = ?", new String[]{name}, null, null, null);
-                 count1 =0;
-                if(cursor.moveToFirst()) {
-                    count1 = cursor.getInt(1);
-                    count1=count1+inc;
+                        cv = new ContentValues();
+                        cv.put(date, count1);
+                        db1.update(TB_NAME1, cv, " NAME = ?", new String[]{name});
+
+                        break;
+                   case 1:
+                        cursor = db1.query(TB_NAME2, new String[]{T2STUDENT_ID, col}, " NAME = ?", new String[]{name}, null, null, null);
+                        int count2 = 0;
+                        if (cursor.moveToFirst()) {
+                            count2 = cursor.getInt(1);
+                            count2 = count2 + inc;
+                        }
+                        cv = new ContentValues();
+                        cv.put(col, count2);
+                        db1.update(TB_NAME2, cv, " NAME = ?", new String[]{name});
+                        break;
+                    case 2:
+                        cursor = db1.query(TB_NAME3, new String[]{T3STUDENT_ID, col}, " NAME = ?", new String[]{name}, null, null, null);
+                        count1 = 0;
+                        if (cursor.moveToFirst()) {
+                            count1 = cursor.getInt(1);
+                            count1 = count1 + inc;
+                        }
+
+                        cv = new ContentValues();
+                        cv.put(col, count1);
+                        db1.update(TB_NAME3, cv, " NAME = ?", new String[]{name});
+
+                        break;
+                    case 3:
+                        cursor = db1.query(TB_NAME4, new String[]{T4STUDENT_ID, col}, " NAME = ?", new String[]{name}, null, null, null);
+                        count1 = 0;
+                        if (cursor.moveToFirst()) {
+                            count1 = cursor.getInt(1);
+                            count1 = count1 + inc;
+                        }
+
+                        cv = new ContentValues();
+                        cv.put(col, count1);
+                        db1.update(TB_NAME4, cv, " NAME = ?", new String[]{name});
+
+                        break;
+
                 }
+            }}catch (SQLiteException e)
+            {
 
-                cv = new ContentValues();
-                cv.put(col, count1);
-                db.update(TB_NAME3, cv, " NAME = ?", new String[]{name});
+             }
 
-                break;
-            case 3:
-                cursor = db.query(TB_NAME4, new String[]{T4STUDENT_ID, col}, " NAME = ?", new String[]{name}, null, null, null);
-                count1 =0;
-                if(cursor.moveToFirst()) {
-                    count1 = cursor.getInt(1);
-                    count1=count1+inc;
-                }
 
-                cv = new ContentValues();
-                cv.put(col, count1);
-                db.update(TB_NAME4, cv, " NAME = ?", new String[]{name});
-
-                break;
-
-            }}
-            else   //second yr
-        {
-        }
-        }catch (SQLiteException e){
-
-        }
-
-cursor.close();
-        db.close();
 
 
     }
 
-    private void addCol(String date, int tbName, int subject) {
-        SQLiteDatabase db = dataBaseHandler.this.getReadableDatabase();
+    public void addCol(String date, int tbName, int subject) {
+        SQLiteDatabase db = this.getReadableDatabase();
         if (tbName == 0) {
             switch (subject) {
                 case 0:
@@ -336,10 +348,10 @@ cursor.close();
                 case 1:
                     db.execSQL("ALTER TABLE " + TB_NAME2 + " ADD COLUMN " + date + " INTEGER DEFAULT 0 ;");
                     break;
-                case 3:
+                case 2:
                     db.execSQL("ALTER TABLE " + TB_NAME3 + " ADD COLUMN " + date + " INTEGER DEFAULT 0 ;");
                     break;
-                case 4:
+                case 3:
                     db.execSQL("ALTER TABLE " + TB_NAME4 + " ADD COLUMN " + date + " INTEGER DEFAULT 0 ;");
 
             }
