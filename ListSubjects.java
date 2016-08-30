@@ -3,6 +3,7 @@ package com.example.dellpctc.teacherassistant;
 import android.app.ListActivity;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.AsyncTask;
@@ -74,22 +75,43 @@ public class ListSubjects extends ListActivity {
 
     private class addCol extends AsyncTask<Void,Void,Boolean> {
         String dateName;
-
-
+         int count=0;
+        String s;
+        @Override
+        protected void onPreExecute() {
+            dataBaseHandler dbh = new dataBaseHandler(ListSubjects.this);
+            Cursor c = dbh.allEntry2("DATENAME");
+            count= c.getCount();
+        }
 
         @Override
         protected Boolean doInBackground(Void... params) {
-
+                      int day=0;
+            int month=0;
             SQLiteOpenHelper sql = new dataBaseHandler(ListSubjects.this);
             SQLiteDatabase db = sql.getReadableDatabase();
-            /*Cursor cursor = db.query("DateKeeper",new String[]{"_id","DAY","MONTH"}," _id = ? ",new String[]{Integer.toString(1)},null,null,null);
-            int day = cursor.getInt(1);
-            int month = cursor.getInt(2);*/
-            dateName= String.valueOf(new StringBuilder().append(14).append("/").append(8));
+            Cursor cursor = db.query("DateKeeper",new String[]{"_id","DAY","MONTH"}," _id = ? ",new String[]{Integer.toString(1)},null,null,null);
+            if(cursor.moveToFirst())
+               {
+               day = cursor.getInt(1);
+                month = cursor.getInt(2);
+               }
+            dateName= String.valueOf(new StringBuilder().append("O").append(day).append("_").append(month));
             SQLiteDatabase db2 = sql.getWritableDatabase();
+            Cursor c = db2.query("DATENAME",new String[]{"_id","NAME"}," _id = ? ",new String[]{Integer.toString(1)},null,null,null);
+            if(c.moveToFirst()){
+                 s = c.getString(1); //checking if same name exist or not
+            }
+
             ContentValues cv= new ContentValues();
             cv.put("NAME",dateName);
-            db2.insert("DATENAME",null,cv);
+            if(count==0){
+                db2.insert("DATENAME",null,cv);
+            }
+            else if(!s.equals(dateName)){
+                db2.insert("DATENAME",null,cv);
+            }
+
             return null;
         }
     }
