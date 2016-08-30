@@ -55,6 +55,7 @@ public class Attendance extends AppCompatActivity {
 
 
         String date = tellMeDate();
+        dbh.addCol(date,y,s);
          choice =(int)getIntent().getExtras().get(Choice);
         Spinner spinner = (Spinner)findViewById(R.id.inc);
         String inc = spinner.getSelectedItem().toString();
@@ -80,10 +81,13 @@ public String tellMeDate(){
     sql = new dataBaseHandler(Attendance.this);
     db= sql.getReadableDatabase();
     String date = null;
-    Cursor cursor = db.query("DATENAME",new String[]{"_id","NAME"}," _id = ?",new String[]{Integer.toString(1)},null,null,null);
+    dataBaseHandler dbh = new dataBaseHandler(Attendance.this);
+    Cursor mcur = dbh.allEntry2("DATENAME");
+    int count = mcur.getCount();
+    Cursor cursor = db.query("DATENAME",new String[]{"_id","NAME"}," _id = ?",new String[]{Integer.toString(count)},null,null,null);
     if(cursor.moveToFirst()){
-     date = cursor.getString(1);}
-    db.close();
+      date = cursor.getString(1);}
+
     return date;
 
 
